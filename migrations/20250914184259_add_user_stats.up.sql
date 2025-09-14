@@ -1,0 +1,13 @@
+CREATE TABLE user_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    courses_completed INT NOT NULL DEFAULT 0,
+    courses_in_progress INT NOT NULL DEFAULT 0,
+    followers INT NOT NULL DEFAULT 0,
+    following INT NOT NULL DEFAULT 0,
+    level INT NOT NULL DEFAULT 1,
+    xp INT NOT NULL DEFAULT 0,
+    next_level_xp INT NOT NULL DEFAULT 100,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
