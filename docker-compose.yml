@@ -7,7 +7,13 @@ services:
     ports:
       - 8080:8080
     environment:
-      DB_URL: "postgres://postgres:postgres@db:5432/tutor_app_back?sslmode=disable"
+c      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: tutor_app_back
+      DB_SSLMODE: disable
+      JWT_SECRET: super-secret-word
     networks:
       - tutor_app_back_network
     restart: unless-stopped

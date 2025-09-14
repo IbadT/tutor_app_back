@@ -25,6 +25,20 @@ type UpdateUserInfo struct {
 	Phone     string `json:"phone"`
 }
 
+// UserAchievement defines model for UserAchievement.
+type UserAchievement struct {
+	AchievementName *string             `json:"achievement_name,omitempty"`
+	Id              *openapi_types.UUID `json:"id,omitempty"`
+	UserId          *openapi_types.UUID `json:"user_id,omitempty"`
+}
+
+// UserBadge defines model for UserBadge.
+type UserBadge struct {
+	BadgeName *string             `json:"badge_name,omitempty"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	UserId    *openapi_types.UUID `json:"user_id,omitempty"`
+}
+
 // UserProfile defines model for UserProfile.
 type UserProfile struct {
 	Avatar     *string              `json:"avatar,omitempty"`
@@ -41,6 +55,19 @@ type UserProfile struct {
 	UpdatedAt  *time.Time           `json:"updated_at,omitempty"`
 }
 
+// UserStats defines model for UserStats.
+type UserStats struct {
+	CoursesCompleted  *int                `json:"courses_completed,omitempty"`
+	CoursesInProgress *int                `json:"courses_in_progress,omitempty"`
+	Followers         *int                `json:"followers,omitempty"`
+	Following         *int                `json:"following,omitempty"`
+	Id                *openapi_types.UUID `json:"id,omitempty"`
+	Level             *int                `json:"level,omitempty"`
+	NextLevelXp       *int                `json:"next_level_xp,omitempty"`
+	UserId            *openapi_types.UUID `json:"user_id,omitempty"`
+	Xp                *int                `json:"xp,omitempty"`
+}
+
 // PatchUsersProfileIdJSONRequestBody defines body for PatchUsersProfileId for application/json ContentType.
 type PatchUsersProfileIdJSONRequestBody = UpdateUserInfo
 
@@ -52,6 +79,15 @@ type ServerInterface interface {
 	// Update user profile
 	// (PATCH /users/profile/{id})
 	PatchUsersProfileId(ctx echo.Context, id openapi_types.UUID) error
+	// Get user achievements
+	// (GET /users/{id}/achievements)
+	GetUsersIdAchievements(ctx echo.Context, id openapi_types.UUID) error
+	// Get user badges
+	// (GET /users/{id}/badges)
+	GetUsersIdBadges(ctx echo.Context, id openapi_types.UUID) error
+	// Get user statistics
+	// (GET /users/{id}/stats)
+	GetUsersIdStats(ctx echo.Context, id openapi_types.UUID) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -91,6 +127,54 @@ func (w *ServerInterfaceWrapper) PatchUsersProfileId(ctx echo.Context) error {
 	return err
 }
 
+// GetUsersIdAchievements converts echo context to params.
+func (w *ServerInterfaceWrapper) GetUsersIdAchievements(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetUsersIdAchievements(ctx, id)
+	return err
+}
+
+// GetUsersIdBadges converts echo context to params.
+func (w *ServerInterfaceWrapper) GetUsersIdBadges(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetUsersIdBadges(ctx, id)
+	return err
+}
+
+// GetUsersIdStats converts echo context to params.
+func (w *ServerInterfaceWrapper) GetUsersIdStats(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetUsersIdStats(ctx, id)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -121,6 +205,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/users/profile/:id", wrapper.GetUsersProfileId)
 	router.PATCH(baseURL+"/users/profile/:id", wrapper.PatchUsersProfileId)
+	router.GET(baseURL+"/users/:id/achievements", wrapper.GetUsersIdAchievements)
+	router.GET(baseURL+"/users/:id/badges", wrapper.GetUsersIdBadges)
+	router.GET(baseURL+"/users/:id/stats", wrapper.GetUsersIdStats)
 
 }
 
@@ -210,6 +297,129 @@ func (response PatchUsersProfileId500JSONResponse) VisitPatchUsersProfileIdRespo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetUsersIdAchievementsRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type GetUsersIdAchievementsResponseObject interface {
+	VisitGetUsersIdAchievementsResponse(w http.ResponseWriter) error
+}
+
+type GetUsersIdAchievements200JSONResponse []UserAchievement
+
+func (response GetUsersIdAchievements200JSONResponse) VisitGetUsersIdAchievementsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdAchievements401JSONResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+func (response GetUsersIdAchievements401JSONResponse) VisitGetUsersIdAchievementsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdAchievements500JSONResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+func (response GetUsersIdAchievements500JSONResponse) VisitGetUsersIdAchievementsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdBadgesRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type GetUsersIdBadgesResponseObject interface {
+	VisitGetUsersIdBadgesResponse(w http.ResponseWriter) error
+}
+
+type GetUsersIdBadges200JSONResponse []UserBadge
+
+func (response GetUsersIdBadges200JSONResponse) VisitGetUsersIdBadgesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdBadges401JSONResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+func (response GetUsersIdBadges401JSONResponse) VisitGetUsersIdBadgesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdBadges500JSONResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+func (response GetUsersIdBadges500JSONResponse) VisitGetUsersIdBadgesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdStatsRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type GetUsersIdStatsResponseObject interface {
+	VisitGetUsersIdStatsResponse(w http.ResponseWriter) error
+}
+
+type GetUsersIdStats200JSONResponse UserStats
+
+func (response GetUsersIdStats200JSONResponse) VisitGetUsersIdStatsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdStats401JSONResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+func (response GetUsersIdStats401JSONResponse) VisitGetUsersIdStatsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersIdStats500JSONResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+func (response GetUsersIdStats500JSONResponse) VisitGetUsersIdStatsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Get user profile
@@ -218,6 +428,15 @@ type StrictServerInterface interface {
 	// Update user profile
 	// (PATCH /users/profile/{id})
 	PatchUsersProfileId(ctx context.Context, request PatchUsersProfileIdRequestObject) (PatchUsersProfileIdResponseObject, error)
+	// Get user achievements
+	// (GET /users/{id}/achievements)
+	GetUsersIdAchievements(ctx context.Context, request GetUsersIdAchievementsRequestObject) (GetUsersIdAchievementsResponseObject, error)
+	// Get user badges
+	// (GET /users/{id}/badges)
+	GetUsersIdBadges(ctx context.Context, request GetUsersIdBadgesRequestObject) (GetUsersIdBadgesResponseObject, error)
+	// Get user statistics
+	// (GET /users/{id}/stats)
+	GetUsersIdStats(ctx context.Context, request GetUsersIdStatsRequestObject) (GetUsersIdStatsResponseObject, error)
 }
 
 type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
@@ -282,6 +501,81 @@ func (sh *strictHandler) PatchUsersProfileId(ctx echo.Context, id openapi_types.
 		return err
 	} else if validResponse, ok := response.(PatchUsersProfileIdResponseObject); ok {
 		return validResponse.VisitPatchUsersProfileIdResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetUsersIdAchievements operation middleware
+func (sh *strictHandler) GetUsersIdAchievements(ctx echo.Context, id openapi_types.UUID) error {
+	var request GetUsersIdAchievementsRequestObject
+
+	request.Id = id
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetUsersIdAchievements(ctx.Request().Context(), request.(GetUsersIdAchievementsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetUsersIdAchievements")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetUsersIdAchievementsResponseObject); ok {
+		return validResponse.VisitGetUsersIdAchievementsResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetUsersIdBadges operation middleware
+func (sh *strictHandler) GetUsersIdBadges(ctx echo.Context, id openapi_types.UUID) error {
+	var request GetUsersIdBadgesRequestObject
+
+	request.Id = id
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetUsersIdBadges(ctx.Request().Context(), request.(GetUsersIdBadgesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetUsersIdBadges")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetUsersIdBadgesResponseObject); ok {
+		return validResponse.VisitGetUsersIdBadgesResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetUsersIdStats operation middleware
+func (sh *strictHandler) GetUsersIdStats(ctx echo.Context, id openapi_types.UUID) error {
+	var request GetUsersIdStatsRequestObject
+
+	request.Id = id
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetUsersIdStats(ctx.Request().Context(), request.(GetUsersIdStatsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetUsersIdStats")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetUsersIdStatsResponseObject); ok {
+		return validResponse.VisitGetUsersIdStatsResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}

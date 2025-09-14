@@ -315,6 +315,142 @@ paths:
                   message:
                     type: string
 
+  /users/{id}/stats:
+    get:
+      tags:
+        - users
+      summary: Get user statistics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: The ID of the user
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: User statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+
+  /users/{id}/achievements:
+    get:
+      tags:
+        - users
+      summary: Get user achievements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: The ID of the user
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: User achievements retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserAchievement'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+
+  /users/{id}/badges:
+    get:
+      tags:
+        - users
+      summary: Get user badges
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: The ID of the user
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: User badges retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserBadge'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+
 components:
   schemas:
     User:
@@ -382,4 +518,52 @@ components:
         location:
           type: string
         phone:
+          type: string
+
+    UserStats:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        courses_completed:
+          type: integer
+        courses_in_progress:
+          type: integer
+        followers:
+          type: integer
+        following:
+          type: integer
+        level:
+          type: integer
+        xp:
+          type: integer
+        next_level_xp:
+          type: integer
+
+    UserAchievement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        achievement_name:
+          type: string
+
+    UserBadge:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        badge_name:
           type: string

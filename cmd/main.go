@@ -2,47 +2,30 @@ package main
 
 import (
 	"log"
+	"os"
 
-	authservice "github.com/IbadT/tutor_app_back.git/internal/authService"
-	"github.com/IbadT/tutor_app_back.git/internal/db"
-	"github.com/IbadT/tutor_app_back.git/internal/handlers"
-	custom_middleware "github.com/IbadT/tutor_app_back.git/internal/middleware"
-	userservice "github.com/IbadT/tutor_app_back.git/internal/userService"
-	"github.com/IbadT/tutor_app_back.git/internal/web/auth"
-	"github.com/IbadT/tutor_app_back.git/internal/web/users"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/IbadT/tutor_app_back.git/internal/app"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	database, err := db.InitDB()
-	if err != nil {
-		log.Println("Error initializing database: ", err)
-		log.Fatalf("Error initializing database: %v", err)
-		panic(err)
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
 	}
 
-	e := echo.New()
+	// Get port from environment variable or use default
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-	// Set custom error handler
-	e.HTTPErrorHandler = custom_middleware.ErrorHandler
+	// Create and start server
+	server, err := app.NewServer()
+	if err != nil {
+		log.Fatalf("Failed to create server: %v", err)
+	}
 
-	userRepo := userservice.NewUserRepository(database)
-	userService := userservice.NewUserService(userRepo)
-	userHandlers := handlers.NewUserHandlers(userService)
-	userStrictHandler := users.NewStrictHandler(userHandlers, nil)
-	users.RegisterHandlers(e, userStrictHandler)
-
-	authRepo := authservice.NewAuthRepository(database)
-	authService := authservice.NewAuthService(authRepo, userRepo)
-	authHandlers := handlers.NewAuthHandlers(authService)
-	authStrictHandler := auth.NewStrictHandler(authHandlers, nil)
-	auth.RegisterHandlers(e, authStrictHandler)
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-
-	log.Fatal(e.Start(":8080"))
+	// Start server
+	log.Fatal(server.Start(port))
 }
