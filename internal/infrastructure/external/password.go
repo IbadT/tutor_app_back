@@ -1,7 +1,7 @@
 package external
 
 import (
-	"github.com/IbadT/tutor_app_back.git/internal/domain/auth"
+	"github.com/IbadT/tutor_app_back.git/internal/domain/shared"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,7 +11,7 @@ type passwordService struct {
 }
 
 // NewPasswordService creates a new password service
-func NewPasswordService() auth.PasswordHasher {
+func NewPasswordService() shared.PasswordHasher {
 	return &passwordService{
 		cost: bcrypt.DefaultCost,
 	}

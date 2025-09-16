@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"github.com/IbadT/tutor_app_back.git/internal/domain/auth"
-	"github.com/IbadT/tutor_app_back.git/internal/domain/user"
+	"github.com/IbadT/tutor_app_back.git/internal/domain/shared"
 	"gorm.io/gorm"
 )
 
@@ -17,8 +17,8 @@ func NewAuthRepository(db *gorm.DB) auth.Repository {
 }
 
 // GetUserByEmail retrieves a user by email
-func (r *authRepository) GetUserByEmail(email string) (*user.User, error) {
-	var u user.User
+func (r *authRepository) GetUserByEmail(email string) (*shared.User, error) {
+	var u shared.User
 	err := r.db.Where("email = ?", email).First(&u).Error
 	if err != nil {
 		return nil, err
@@ -27,14 +27,14 @@ func (r *authRepository) GetUserByEmail(email string) (*user.User, error) {
 }
 
 // CreateUser creates a new user
-func (r *authRepository) CreateUser(u *user.User) error {
+func (r *authRepository) CreateUser(u *shared.User) error {
 	return r.db.Create(u).Error
 }
 
 // UserExists checks if a user exists by email
 func (r *authRepository) UserExists(email string) (bool, error) {
 	var count int64
-	err := r.db.Model(&user.User{}).Where("email = ?", email).Count(&count).Error
+	err := r.db.Model(&shared.User{}).Where("email = ?", email).Count(&count).Error
 	if err != nil {
 		return false, err
 	}

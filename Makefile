@@ -13,6 +13,8 @@ migrate-down:
 gen:
 	oapi-codegen -config openapi/.openapi -include-tags auth -package auth openapi/openapi.yaml > ./internal/web/auth/api.gen.go
 	oapi-codegen -config openapi/.openapi -include-tags users -package users openapi/openapi.yaml > ./internal/web/users/api.gen.go
+	oapi-codegen -config openapi/.openapi -include-tags courses -package courses openapi/openapi.yaml > ./internal/web/courses/api.gen.go
+	oapi-codegen -config openapi/.openapi -include-tags lessons -package lessons openapi/openapi.yaml > ./internal/web/lessons/api.gen.go
 
 lint:
 	golangci-lint run --color=always

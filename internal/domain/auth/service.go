@@ -10,12 +10,20 @@ import (
 	"gorm.io/gorm"
 )
 
+// Service defines the interface for authentication business logic
+type Service interface {
+	Login(req *LoginRequest) (*LoginResponse, error)
+	Register(req *RegisterRequest) (*LoginResponse, error)
+	RefreshToken(refreshToken string) (*LoginResponse, error)
+	ValidateToken(tokenString string) (uuid.UUID, string, error)
+}
+
 // service implements the authentication business logic
 type service struct {
 	authRepo     Repository
 	userRepo     user.Repository
 	tokenGen     TokenGenerator
-	passwordHash PasswordHasher
+	passwordHash shared.PasswordHasher
 }
 
 // NewService creates a new authentication service
@@ -23,7 +31,7 @@ func NewService(
 	authRepo Repository,
 	userRepo user.Repository,
 	tokenGen TokenGenerator,
-	passwordHash PasswordHasher,
+	passwordHash shared.PasswordHasher,
 ) Service {
 	return &service{
 		authRepo:     authRepo,
@@ -94,7 +102,7 @@ func (s *service) Register(req *RegisterRequest) (*LoginResponse, error) {
 	}
 
 	// Create user
-	newUser := &user.User{
+	newUser := &shared.User{
 		ID:       uuid.New(),
 		Email:    req.Email,
 		Password: hashedPassword,

@@ -46,6 +46,12 @@ var (
 		Message: "Invalid credentials",
 	}
 
+	// 403 Forbidden
+	ErrForbidden = &APIError{
+		Code:    http.StatusForbidden,
+		Message: "Forbidden",
+	}
+
 	// 409 Conflict
 	ErrUserAlreadyExists = &APIError{
 		Code:    http.StatusConflict,

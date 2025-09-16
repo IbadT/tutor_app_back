@@ -160,6 +160,75 @@ func (h *UserHandler) GetUsersIdBadges(ctx context.Context, request web_users.Ge
 	return web_users.GetUsersIdBadges200JSONResponse(responseBadges), nil
 }
 
+// PutUsersProfilePasswordId handles PUT /users/profile/password
+func (h *UserHandler) PutUsersProfilePasswordId(ctx context.Context, request web_users.PutUsersProfilePasswordIdRequestObject) (web_users.PutUsersProfilePasswordIdResponseObject, error) {
+	body := request.Body
+	userID := uuid.UUID(request.Id)
+
+	updateRequest := &user.UpdateUserPasswordRequest{
+		CurrentPassword: body.CurrentPassword,
+		NewPassword:     body.NewPassword,
+	}
+
+	err := h.userService.UpdateUserPassword(userID, updateRequest)
+	if err != nil {
+		return h.handleUpdateUserPasswordError(err)
+	}
+
+	return web_users.PutUsersProfilePasswordId200JSONResponse{
+		Code:    func() *int { code := 200; return &code }(),
+		Message: func() *string { msg := "User password updated successfully"; return &msg }(),
+	}, nil
+}
+
+func (h *UserHandler) PutUsersReplacerIdStudentsStudentIdStatus(ctx context.Context, request web_users.PutUsersReplacerIdStudentsStudentIdStatusRequestObject) (web_users.PutUsersReplacerIdStudentsStudentIdStatusResponseObject, error) {
+	replacerID := uuid.UUID(request.ReplacerId)
+	studentID := uuid.UUID(request.StudentId)
+	body := *request.Body
+	requestBody := user.BooleanUpdateRequest{
+		IsActive:   body.IsActive,
+		IsVerified: body.IsVerified,
+	}
+
+	err := h.userService.UpdateStudentStatus(replacerID, studentID, requestBody)
+	if err != nil {
+		return h.handleUpdateStudentStatusError(err)
+	}
+
+	return web_users.PutUsersReplacerIdStudentsStudentIdStatus200JSONResponse{
+		Code:    func() *int { code := 200; return &code }(),
+		Message: func() *string { msg := "Student status updated successfully"; return &msg }(),
+	}, nil
+}
+
+func (h *UserHandler) handleUpdateStudentStatusError(err error) (web_users.PutUsersReplacerIdStudentsStudentIdStatusResponseObject, error) {
+	if apiErr, ok := err.(*shared.APIError); ok {
+		switch apiErr.Code {
+		case 400:
+			return web_users.PutUsersReplacerIdStudentsStudentIdStatus400JSONResponse{Code: &apiErr.Code, Message: &apiErr.Message}, nil
+		default:
+			return web_users.PutUsersReplacerIdStudentsStudentIdStatus500JSONResponse{Code: &apiErr.Code, Message: &apiErr.Message}, nil
+		}
+	}
+	code := 500
+	msg := "Internal server error"
+	return web_users.PutUsersReplacerIdStudentsStudentIdStatus500JSONResponse{Code: &code, Message: &msg}, nil
+}
+
+func (h *UserHandler) handleUpdateUserPasswordError(err error) (web_users.PutUsersProfilePasswordIdResponseObject, error) {
+	if apiErr, ok := err.(*shared.APIError); ok {
+		switch apiErr.Code {
+		case 400:
+			return web_users.PutUsersProfilePasswordId400JSONResponse{Code: &apiErr.Code, Message: &apiErr.Message}, nil
+		default:
+			return web_users.PutUsersProfilePasswordId500JSONResponse{Code: &apiErr.Code, Message: &apiErr.Message}, nil
+		}
+	}
+	code := 500
+	msg := "Internal server error"
+	return web_users.PutUsersProfilePasswordId500JSONResponse{Code: &code, Message: &msg}, nil
+}
+
 // Error handling methods for new endpoints
 func (h *UserHandler) handleGetUserStatsError(err error) (web_users.GetUsersIdStatsResponseObject, error) {
 	if apiErr, ok := err.(*shared.APIError); ok {

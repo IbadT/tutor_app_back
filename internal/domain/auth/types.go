@@ -35,9 +35,3 @@ type TokenGenerator interface {
 	ParseToken(tokenString string) (map[string]interface{}, error)
 	ValidateToken(tokenString string) error
 }
-
-// PasswordHasher defines the interface for password operations
-type PasswordHasher interface {
-	HashPassword(password string) (string, error)
-	ComparePassword(password, hashedPassword string) bool
-}

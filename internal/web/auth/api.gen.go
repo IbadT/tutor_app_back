@@ -14,45 +14,58 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// Defines values for PostAuthRegisterJSONBodyRole.
+// Defines values for RegisterUserRequestRole.
 const (
-	Admin   PostAuthRegisterJSONBodyRole = "admin"
-	Student PostAuthRegisterJSONBodyRole = "student"
-	Tutor   PostAuthRegisterJSONBodyRole = "tutor"
+	Admin   RegisterUserRequestRole = "admin"
+	Student RegisterUserRequestRole = "student"
+	Tutor   RegisterUserRequestRole = "tutor"
 )
 
-// PostAuthLoginJSONBody defines parameters for PostAuthLogin.
-type PostAuthLoginJSONBody struct {
+// Error defines model for Error.
+type Error struct {
+	Code    *int    `json:"code,omitempty"`
+	Details *string `json:"details,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+// LoginRequest defines model for LoginRequest.
+type LoginRequest struct {
 	Email    openapi_types.Email `json:"email"`
 	Password string              `json:"password"`
 }
 
-// PostAuthRefreshTokenJSONBody defines parameters for PostAuthRefreshToken.
-type PostAuthRefreshTokenJSONBody struct {
+// LoginResponse defines model for LoginResponse.
+type LoginResponse struct {
+	AccessToken  *string `json:"access_token,omitempty"`
+	RefreshToken *string `json:"refresh_token,omitempty"`
+}
+
+// RefreshTokenRequest defines model for RefreshTokenRequest.
+type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-// PostAuthRegisterJSONBody defines parameters for PostAuthRegister.
-type PostAuthRegisterJSONBody struct {
-	Email     openapi_types.Email          `json:"email"`
-	FirstName string                       `json:"first_name"`
-	LastName  string                       `json:"last_name"`
-	Location  string                       `json:"location"`
-	Password  string                       `json:"password"`
-	Role      PostAuthRegisterJSONBodyRole `json:"role"`
+// RegisterUserRequest defines model for RegisterUserRequest.
+type RegisterUserRequest struct {
+	Email     openapi_types.Email     `json:"email"`
+	FirstName string                  `json:"first_name"`
+	LastName  string                  `json:"last_name"`
+	Location  string                  `json:"location"`
+	Password  string                  `json:"password"`
+	Role      RegisterUserRequestRole `json:"role"`
 }
 
-// PostAuthRegisterJSONBodyRole defines parameters for PostAuthRegister.
-type PostAuthRegisterJSONBodyRole string
+// RegisterUserRequestRole defines model for RegisterUserRequest.Role.
+type RegisterUserRequestRole string
 
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
-type PostAuthLoginJSONRequestBody PostAuthLoginJSONBody
+type PostAuthLoginJSONRequestBody = LoginRequest
 
 // PostAuthRefreshTokenJSONRequestBody defines body for PostAuthRefreshToken for application/json ContentType.
-type PostAuthRefreshTokenJSONRequestBody PostAuthRefreshTokenJSONBody
+type PostAuthRefreshTokenJSONRequestBody = RefreshTokenRequest
 
 // PostAuthRegisterJSONRequestBody defines body for PostAuthRegister for application/json ContentType.
-type PostAuthRegisterJSONRequestBody PostAuthRegisterJSONBody
+type PostAuthRegisterJSONRequestBody = RegisterUserRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -141,10 +154,7 @@ type PostAuthLoginResponseObject interface {
 	VisitPostAuthLoginResponse(w http.ResponseWriter) error
 }
 
-type PostAuthLogin200JSONResponse struct {
-	AccessToken  *string `json:"access_token,omitempty"`
-	RefreshToken *string `json:"refresh_token,omitempty"`
-}
+type PostAuthLogin200JSONResponse LoginResponse
 
 func (response PostAuthLogin200JSONResponse) VisitPostAuthLoginResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -153,10 +163,7 @@ func (response PostAuthLogin200JSONResponse) VisitPostAuthLoginResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAuthLogin400JSONResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
+type PostAuthLogin400JSONResponse Error
 
 func (response PostAuthLogin400JSONResponse) VisitPostAuthLoginResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -165,10 +172,7 @@ func (response PostAuthLogin400JSONResponse) VisitPostAuthLoginResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAuthLogin401JSONResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
+type PostAuthLogin401JSONResponse Error
 
 func (response PostAuthLogin401JSONResponse) VisitPostAuthLoginResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -177,10 +181,7 @@ func (response PostAuthLogin401JSONResponse) VisitPostAuthLoginResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAuthLogin500JSONResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
+type PostAuthLogin500JSONResponse Error
 
 func (response PostAuthLogin500JSONResponse) VisitPostAuthLoginResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -209,10 +210,7 @@ func (response PostAuthRefreshToken200JSONResponse) VisitPostAuthRefreshTokenRes
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAuthRefreshToken400JSONResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
+type PostAuthRefreshToken400JSONResponse Error
 
 func (response PostAuthRefreshToken400JSONResponse) VisitPostAuthRefreshTokenResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -221,10 +219,7 @@ func (response PostAuthRefreshToken400JSONResponse) VisitPostAuthRefreshTokenRes
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAuthRefreshToken401JSONResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
+type PostAuthRefreshToken401JSONResponse Error
 
 func (response PostAuthRefreshToken401JSONResponse) VisitPostAuthRefreshTokenResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -233,10 +228,7 @@ func (response PostAuthRefreshToken401JSONResponse) VisitPostAuthRefreshTokenRes
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAuthRefreshToken500JSONResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
+type PostAuthRefreshToken500JSONResponse Error
 
 func (response PostAuthRefreshToken500JSONResponse) VisitPostAuthRefreshTokenResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")

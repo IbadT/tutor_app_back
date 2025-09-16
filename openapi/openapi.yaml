@@ -17,30 +17,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-                - password
-                - first_name
-                - last_name
-                - role
-                - location
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  minLength: 6
-                first_name:
-                  type: string
-                last_name:
-                  type: string
-                role:
-                  type: string
-                  enum: ["student", "admin", "tutor"]
-                location:
-                  type: string
+              $ref: '#/components/schemas/RegisterUserRequest'
       responses:
         '201':
           description: User registered successfully
@@ -99,62 +76,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  minLength: 6
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
           description: Login successful
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  refresh_token:
-                    type: string
+                $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '401':
           description: Invalid credentials
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
   
   /auth/refresh-token:
     post:
@@ -166,12 +113,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - refresh_token
-              properties:
-                refresh_token:
-                  type: string
+              $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
           description: Token refreshed successfully
@@ -189,49 +131,29 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '401':
           description: Invalid refresh token
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
   
   /users/profile/{id}:
     get:
       tags:
         - users
       summary: Get user profile
+      security:
+        - BearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: The ID of the user
-            example: 123e4567-e89b-12d3-a456-426614174000
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
           description: User profile retrieved successfully
@@ -244,36 +166,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
     patch:
       tags:
         - users
       summary: Update user profile
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: The ID of the user
-            example: 123e4567-e89b-12d3-a456-426614174000
+        - $ref: '#/components/parameters/UserId'
       requestBody:
         required: true
         content:
@@ -283,6 +188,49 @@ paths:
       responses:
         '200':
           description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/profile/password/{id}:
+    put:
+      tags:
+        - users
+      summary: Update user password
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        '200':
+          description: User password updated successfully
           content:
             application/json:
               schema:
@@ -297,38 +245,29 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
 
   /users/{id}/stats:
     get:
       tags:
         - users
       summary: Get user statistics
+      security:
+        - BearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: The ID of the user
-            example: 123e4567-e89b-12d3-a456-426614174000
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
           description: User statistics retrieved successfully
@@ -341,38 +280,23 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
 
   /users/{id}/achievements:
     get:
       tags:
         - users
       summary: Get user achievements
+      security:
+        - BearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: The ID of the user
-            example: 123e4567-e89b-12d3-a456-426614174000
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
           description: User achievements retrieved successfully
@@ -387,38 +311,23 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
 
   /users/{id}/badges:
     get:
       tags:
         - users
       summary: Get user badges
+      security:
+        - BearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: The ID of the user
-            example: 123e4567-e89b-12d3-a456-426614174000
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
           description: User badges retrieved successfully
@@ -433,26 +342,255 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
+
+  /users/{replacer_id}/students/{student_id}/status:
+    put:
+      tags:
+        - users
+      summary: Update student status
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ReplacerId'
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStudentStatus'
+      responses:
+        '200':
+          description: Student status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /courses:
+    get:
+      tags:
+        - courses
+      summary: Get courses
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /courses/{course_id}:
+    get:
+      tags:
+        - courses
+      summary: Get course
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: Course retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /lessons:
+    get:
+      tags:
+        - lessons
+      summary: Get lessons
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lessons retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lesson'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /lessons/{creater_id}:
+    post:
+      tags:
+        - lessons
+      summary: Create lesson
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CreaterId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLessonRequest'
+      responses:
+        '200':
+          description: Lesson created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The ID of the user
+      example: 123e4567-e89b-12d3-a456-426614174000
+    
+    CourseId:
+      name: course_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The ID of the course
+      example: 123e4567-e89b-12d3-a456-426614174000
+    
+    CreaterId:
+      name: creater_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The ID of the creater
+      example: 123e4567-e89b-12d3-a456-426614174000
+    
+    ReplacerId:
+      name: replacer_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The ID of the replacer
+      example: 123e4567-e89b-12d3-a456-426614174000
+    
+    StudentId:
+      name: student_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The ID of the student
+      example: 123e4567-e89b-12d3-a456-426614174000
+
   schemas:
+    RegisterUserRequest:
+      type: object
+      required:
+        - email
+        - password
+        - first_name
+        - last_name
+        - role
+        - location
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+          enum: ["student", "admin", "tutor"]
+        location:
+          type: string
     User:
       type: object
       properties:
@@ -566,4 +704,144 @@ components:
           type: string
           format: uuid
         badge_name:
+          type: string
+    
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        tutor_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        progress:
+          type: integer
+        total_lessons:
+          type: integer
+        completed_lessons:
+          type: integer
+        duration:
+          type: string
+        students_count:
+          type: integer
+        rating:
+          type: number
+          format: float
+        category_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    Lesson:
+      type: object
+      required:
+        - id
+        - course_id
+        - title
+        - description
+        - video_url
+        - duration
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        video_url:
+          type: string
+        duration:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateLessonRequest:
+      type: object
+      required:
+        - course_id
+        - title
+        - description
+        - video_url
+        - duration
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        video_url:
+          type: string
+        duration:
+          type: string
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    UpdateStudentStatus:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+        is_verified:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        details:
           type: string

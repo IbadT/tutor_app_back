@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/IbadT/tutor_app_back.git/internal/domain/shared"
 	"github.com/IbadT/tutor_app_back.git/internal/domain/user"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -17,8 +18,8 @@ func NewUserRepository(db *gorm.DB) user.Repository {
 }
 
 // GetByID retrieves a user by ID
-func (r *userRepository) GetByID(id uuid.UUID) (*user.User, error) {
-	var u user.User
+func (r *userRepository) GetByID(id uuid.UUID) (*shared.User, error) {
+	var u shared.User
 	err := r.db.Where("id = ?", id).First(&u).Error
 	if err != nil {
 		return nil, err
@@ -27,8 +28,8 @@ func (r *userRepository) GetByID(id uuid.UUID) (*user.User, error) {
 }
 
 // GetByEmail retrieves a user by email
-func (r *userRepository) GetByEmail(email string) (*user.User, error) {
-	var u user.User
+func (r *userRepository) GetByEmail(email string) (*shared.User, error) {
+	var u shared.User
 	err := r.db.Where("email = ?", email).First(&u).Error
 	if err != nil {
 		return nil, err
@@ -37,18 +38,18 @@ func (r *userRepository) GetByEmail(email string) (*user.User, error) {
 }
 
 // Create creates a new user
-func (r *userRepository) Create(u *user.User) error {
+func (r *userRepository) Create(u *shared.User) error {
 	return r.db.Create(u).Error
 }
 
 // Update updates an existing user
-func (r *userRepository) Update(u *user.User) error {
+func (r *userRepository) Update(u *shared.User) error {
 	return r.db.Save(u).Error
 }
 
 // Delete deletes a user by ID
 func (r *userRepository) Delete(id uuid.UUID) error {
-	return r.db.Where("id = ?", id).Delete(&user.User{}).Error
+	return r.db.Where("id = ?", id).Delete(&shared.User{}).Error
 }
 
 // GetUserInfo retrieves user information by user ID
@@ -134,4 +135,25 @@ func (r *userRepository) CreateUserBadge(badge *user.UserBadges) error {
 // DeleteUserBadge deletes a user badge
 func (r *userRepository) DeleteUserBadge(id uuid.UUID) error {
 	return r.db.Where("id = ?", id).Delete(&user.UserBadges{}).Error
+}
+
+func (r *userRepository) UpdateUserPassword(userID uuid.UUID, password string) error {
+	return r.db.Model(&shared.User{}).Where("id = ?", userID).Update("password", password).Error
+}
+
+func (r *userRepository) UpdateStudentStatus(replacerID, studentID uuid.UUID, status user.BooleanUpdateRequest) error {
+	updates := make(map[string]interface{})
+
+	if status.IsActive != nil {
+		updates["is_active"] = *status.IsActive
+	}
+	if status.IsVerified != nil {
+		updates["is_verified"] = *status.IsVerified
+	}
+
+	if len(updates) == 0 {
+		return nil // Нет полей для обновления
+	}
+
+	return r.db.Model(&shared.User{}).Where("id = ?", studentID).Updates(updates).Error
 }

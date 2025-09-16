@@ -1,15 +1,8 @@
 package user
 
-import "github.com/google/uuid"
-
-// User represents the core user entity
-type User struct {
-	ID       uuid.UUID `json:"id" gorm:"type:uuid;primary_key;"`
-	Email    string    `json:"email" gorm:"type:varchar(255);unique;not null"`
-	Password string    `json:"-" gorm:"type:varchar(255);not null"`
-	Role     string    `json:"role" gorm:"type:varchar(255);not null"`
-	Location string    `json:"location" gorm:"type:varchar(255);not null"`
-}
+import (
+	"github.com/google/uuid"
+)
 
 // UserInfo represents additional user information
 type UserInfo struct {
@@ -30,6 +23,12 @@ type UpdateUserInfoRequest struct {
 	Bio       string `json:"bio"`
 	Location  string `json:"location" validate:"required"`
 	Phone     string `json:"phone"`
+}
+
+// UpdateUserPasswordRequest represents the request to update user password
+type UpdateUserPasswordRequest struct {
+	CurrentPassword string `json:"current_password" validate:"required"`
+	NewPassword     string `json:"new_password" validate:"required"`
 }
 
 // UserStats represents user statistics
@@ -57,4 +56,14 @@ type UserBadges struct {
 	ID        uuid.UUID `json:"id" gorm:"type:uuid;primary_key;"`
 	UserID    uuid.UUID `json:"user_id" gorm:"type:uuid;not null;foreignKey:UserID;references:ID"`
 	BadgeName string    `json:"badge_name" gorm:"type:varchar(255);not null"`
+}
+
+type UpdateStudentStatusRequest struct {
+	Status string `json:"status" validate:"required"`
+}
+
+// BooleanUpdateRequest represents a request to update a boolean field
+type BooleanUpdateRequest struct {
+	IsActive   *bool `json:"is_active,omitempty"`
+	IsVerified *bool `json:"is_verified,omitempty"`
 }
